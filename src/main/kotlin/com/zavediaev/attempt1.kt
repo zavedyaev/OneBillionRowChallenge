@@ -10,7 +10,7 @@ import java.io.File
  * took: 3:50.75
  */
 fun attempt1(path: String) {
-    val storage = Storage()
+    val storage = StorageWithFloat()
 
     val file = File(path)
     file.useLines { lines ->
