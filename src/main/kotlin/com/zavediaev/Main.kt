@@ -5,5 +5,6 @@ fun main(args: Array<String>) {
 
 //    attempt1(path) // 3:50.75
 //    attempt2(path) // 2:38.56
-    attempt3(path) // 42.968
+//    attempt3(path) // 42.968
+    attempt4(path) // 6.052
 }
