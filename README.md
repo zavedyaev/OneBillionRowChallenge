@@ -41,7 +41,7 @@ val countByCity: HashMap<String, Int>
 val sumByCity: HashMap<String, Double>
 ```
 
-It takes approximately 230 seconds to finish.
+It takes approximately **230 seconds** to finish.
 
 ### Attempt 2
 
@@ -71,7 +71,7 @@ temp *= tempMultiplier
 
 And to print the result I use `temp / 10f`
 
-It takes approximately 158 seconds to finish.
+It takes approximately **158 seconds** to finish.
 
 ### Attempt 3
 
@@ -107,7 +107,7 @@ async {
 And in the end, we are summarizing the results from these 12 coroutines:
 `deferred.map { it.await() }.reduce { acc, storageWithInt -> acc + storageWithInt }`
 
-It takes approximately 43 seconds to finish which is 3.6 times faster than single-thread implementation.
+It takes approximately **43 seconds** to finish which is 3.6 times faster than single-thread implementation.
 
 ### Attempt 4 (the most successful)
 
@@ -158,7 +158,7 @@ Every thread processes its chunk byte by byte in the following manner:
 In addition to these changes, I updated the storage class to utilize only 1 HashMap, which reduced time spent on hashes
 and equals checks, etc.
 
-The resulting code takes 5.251 seconds (best result) to finish, which is 8 times faster than the previous result and 44
+The resulting code takes **5.251 seconds** (best result) to finish, which is 8 times faster than the previous result and 44
 times faster than the first attempt.
 
 ### Attempt 5
@@ -168,13 +168,13 @@ make such a conversion for a billion rows.
 So I started using ByteArray as a key in the Storage map, and to do it I created a wrapper for ByteArray (otherwise
 equals and hashCode methods won't work as expected in map).
 
-But the resulting time (5.325 seconds) was worse than the previous attempt.
+But the resulting time (**5.325 seconds**) was worse than the previous attempt.
 
 ### Attempt 6
 
 As the final step, I decided to make a custom HashMap which won't require a wrapper for a ByteArray.
 I even experimented with custom hash functions for ByteArray, but I never got results better than in Attempt 4.
-The best result was 5.678 seconds.
+The best result was **5.678 seconds**.
 
 So it looks like custom methods for ByteArray hashing and equals checks can't be faster than the embedded JDK methods.
 
@@ -189,10 +189,10 @@ It utilizes many tricks I never even thought of. For example:
 2. It works with memory directly and reads and processes memory chunks as long values. To process these long values it
    heavily utilizes bit operations.
 
-The first execution of this code usually takes 6-11 seconds to finish.
+The first execution of this code usually takes **6-11 seconds** to finish.
 The second execution takes 2-3 seconds to finish
 Next executions take about 1.15 - 1.2 seconds to finish.
 
 I think it is a bit unfair that it caches the file in memory.
-So if we exclude that - it turns out that my implementation is 0.8 seconds faster :)
+So if we exclude that - it turns out that my implementation is **0.8 seconds** faster :)
 
