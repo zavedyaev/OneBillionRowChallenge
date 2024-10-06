@@ -1,4 +1,4 @@
-package com.zavediaev
+package com.zavediaev.obrc.attempt1
 
 import kotlin.math.max
 import kotlin.math.min

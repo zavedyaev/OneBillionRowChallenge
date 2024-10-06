@@ -1,4 +1,4 @@
-package com.zavediaev
+package com.zavediaev.obrc.attempt6
 
 class FastHashMapEntry<T : Any>(
     override val key: ByteArray,

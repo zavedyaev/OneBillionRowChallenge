@@ -1,4 +1,4 @@
-package com.zavediaev
+package com.zavediaev.obrc.attempt5
 
 class ByteArrayHolder(
     val byteArray: ByteArray

@@ -1,5 +1,7 @@
-package com.zavediaev
+package com.zavediaev.obrc.attempt5
 
+import com.zavediaev.obrc.attempt4.IntStatsForCity
+import com.zavediaev.obrc.attempt4.initialMapCapacity
 import kotlin.math.round
 
 data class StorageWithByteArrayHolderStatsMap(

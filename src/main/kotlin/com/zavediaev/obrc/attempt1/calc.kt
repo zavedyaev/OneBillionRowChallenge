@@ -1,15 +1,13 @@
-package com.zavediaev
+package com.zavediaev.obrc.attempt1
 
 import java.io.File
 
 /**
- * compiled to jar using ./gradlew shadowJar
- * to start:
- * time java -cp OneBillionRowChallengeKotlin-1.0-SNAPSHOT-all.jar com.zavediaev.MainKt
+ * Straight-forward single-thread implementation with no optimizations.
  *
- * took: 3:50.75
+ * Takes ~230 seconds
  */
-fun attempt1(path: String) {
+fun calc(path: String) {
     val storage = StorageWithStringFloatMaps()
 
     val file = File(path)

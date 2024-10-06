@@ -1,4 +1,4 @@
-package com.zavediaev
+package com.zavediaev.obrc.attempt4
 
 import java.io.File
 import java.nio.ByteBuffer
@@ -10,20 +10,18 @@ import java.util.concurrent.Executors
 import kotlin.math.min
 
 
-private class ThreadResult6(
-    val skippedBeginning: ByteArray,
-    val skippedEnd: ByteArray,
-    val storage: StorageWithFastHashMap
-)
-
 /**
- * compiled to jar using ./gradlew shadowJar
- * to start:
- * time java -cp OneBillionRowChallengeKotlin-1.0-SNAPSHOT-all.jar com.zavediaev.MainKt
+ * Multi-thread implementation.
+ * Optimizations against [com.zavediaev.obrc.attempt3.calc]:
+ * 1. parallel file read
+ * 2. optimized for M3 Pro processor (18 threads for 6 performance cores, 6 threads for 6 efficiency cores)
+ * 3. reading file using byte arrays and converting to String only actual city names (not the whole line)
+ * 4. storage is updated to have only 1 HashMap per city (not 4) so saving time on operations with maps
+ * 5. set initial map's capacity to avoid re-builds of maps
  *
- * took: 5.871
+ * Takes 5.251 seconds (best result)
  */
-fun attempt6(path: String) {
+fun calc(path: String) {
     val file = File(path)
     val fileLength = file.length()
 
@@ -40,7 +38,7 @@ fun attempt6(path: String) {
         val callable = Callable {
             val toSkipBytes = adjustedBytesPerThread * thread
             var skippedFirstPartBa = ByteArray(0)
-            val threadStorage = StorageWithFastHashMap()
+            val threadStorage = StorageWithStringStatsMap()
 
             val lineBufferSize = 512
             val lineBuffer = ByteArray(lineBufferSize)
@@ -73,8 +71,7 @@ fun attempt6(path: String) {
                                         break
                                     }
                                 }
-                                val nameBa = ByteArray(semicolonIndex)
-                                lineBuffer.copyInto(nameBa, 0, 0, semicolonIndex)
+                                val name = String(lineBuffer, 0, semicolonIndex)
 
                                 var temp = 0
                                 var tempMultiplier = 1
@@ -84,13 +81,13 @@ fun attempt6(path: String) {
                                         if (byte == minusByte) {
                                             tempMultiplier = -1
                                         } else {
-                                            temp = (temp * 10) + (lineBuffer[i] - 48)
+                                            temp = (temp * 10) + (lineBuffer[i].toInt() - 48)
                                         }
                                     }
                                 }
                                 temp *= tempMultiplier
 
-                                threadStorage.add(nameBa, temp)
+                                threadStorage.add(name, temp)
                             }
                             lineBufferIndex = 0
                         }
@@ -130,7 +127,7 @@ fun attempt6(path: String) {
                 ByteArray(0)
             }
 
-            ThreadResult6(
+            ThreadResult(
                 skippedBeginning = skippedFirstPartBa,
                 skippedEnd = skippedLastPartBa,
                 storage = threadStorage
@@ -144,50 +141,20 @@ fun attempt6(path: String) {
     pool.shutdown()
 
     val storageSum = threadResults.map { it.storage }.reduce { acc, storage -> acc + storage }
-    val unprocessedBa = threadResults.map { it.skippedBeginning + nextLineByte + it.skippedEnd }
-        .reduce { acc, bytes -> acc + bytes }
+    val unprocessedStr = threadResults.map { it.skippedBeginning + nextLineByte + it.skippedEnd }
+        .reduce { acc, bytes -> acc + bytes }.toString(Charsets.UTF_8)
+    val storageForUnprocessed = StorageWithStringStatsMap()
 
-    val lineBufferSize = 512
-    val lineBuffer = ByteArray(lineBufferSize)
-    var lineBufferIndex = 0
+    val lines = unprocessedStr.split("\n")
+    lines.filter { it.isNotBlank() }.forEach { line ->
+        val split = line.split(";")
+        val name = split.first()
+        val temperature = split.last().replace(".", "").toInt()
 
-    for (byteIndexInChunk in 0 until unprocessedBa.size) {
-        val byteFromChunk = unprocessedBa[byteIndexInChunk]
-        if (byteFromChunk != nextLineByte) {
-            lineBuffer[lineBufferIndex] = byteFromChunk
-            lineBufferIndex++
-        } else {
-            var semicolonIndex = -1
-            for (i in 0 until lineBufferIndex) {
-                val byte = lineBuffer[i]
-                if (byte == semicolonByte) {
-                    semicolonIndex = i
-                    break
-                }
-            }
-            val nameBa = ByteArray(semicolonIndex)
-            lineBuffer.copyInto(nameBa, 0, 0, semicolonIndex)
-
-            var temp = 0
-            var tempMultiplier = 1
-            for (i in (semicolonIndex + 1) until lineBufferIndex) {
-                val byte = lineBuffer[i]
-                if (byte != commaByte) {
-                    if (byte == minusByte) {
-                        tempMultiplier = -1
-                    } else {
-                        temp = (temp * 10) + (lineBuffer[i].toInt() - 48)
-                    }
-                }
-            }
-            temp *= tempMultiplier
-
-            storageSum.add(nameBa, temp)
-
-            lineBufferIndex = 0
-        }
-
+        storageForUnprocessed.add(name, temperature)
     }
 
-    storageSum.printResults()
+    val result = storageSum + storageForUnprocessed
+    result.printResults()
+
 }

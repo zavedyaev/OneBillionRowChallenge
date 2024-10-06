@@ -1,5 +1,9 @@
-package com.zavediaev
+package com.zavediaev.obrc.attempt6
 
+import com.zavediaev.obrc.attempt4.commaByte
+import com.zavediaev.obrc.attempt4.minusByte
+import com.zavediaev.obrc.attempt4.nextLineByte
+import com.zavediaev.obrc.attempt4.semicolonByte
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -10,20 +14,15 @@ import java.util.concurrent.Executors
 import kotlin.math.min
 
 
-private class ThreadResult5(
-    val skippedBeginning: ByteArray,
-    val skippedEnd: ByteArray,
-    val storage: StorageWithByteArrayHolderStatsMap
-)
-
 /**
- * compiled to jar using ./gradlew shadowJar
- * to start:
- * time java -cp OneBillionRowChallengeKotlin-1.0-SNAPSHOT-all.jar com.zavediaev.MainKt
+ * Multi-thread implementation.
+ * Optimizations against [com.zavediaev.obrc.attempt5.calc]:
+ * 1. own implementation of HashMap (to skip wrapping ByteArray into object)
+ * 2. big initial map capacity to spread stats more evenly
  *
- * took: 5.997
+ * Takes 5.678 seconds (best result)
  */
-fun attempt5(path: String) {
+fun calc(path: String) {
     val file = File(path)
     val fileLength = file.length()
 
@@ -40,7 +39,7 @@ fun attempt5(path: String) {
         val callable = Callable {
             val toSkipBytes = adjustedBytesPerThread * thread
             var skippedFirstPartBa = ByteArray(0)
-            val threadStorage = StorageWithByteArrayHolderStatsMap()
+            val threadStorage = StorageWithFastHashMap()
 
             val lineBufferSize = 512
             val lineBuffer = ByteArray(lineBufferSize)
@@ -84,7 +83,7 @@ fun attempt5(path: String) {
                                         if (byte == minusByte) {
                                             tempMultiplier = -1
                                         } else {
-                                            temp = (temp * 10) + (lineBuffer[i].toInt() - 48)
+                                            temp = (temp * 10) + (lineBuffer[i] - 48)
                                         }
                                     }
                                 }
@@ -130,7 +129,7 @@ fun attempt5(path: String) {
                 ByteArray(0)
             }
 
-            ThreadResult5(
+            ThreadResult(
                 skippedBeginning = skippedFirstPartBa,
                 skippedEnd = skippedLastPartBa,
                 storage = threadStorage

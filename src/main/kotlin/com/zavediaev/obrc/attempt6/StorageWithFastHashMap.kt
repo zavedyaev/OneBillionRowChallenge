@@ -1,8 +1,9 @@
-package com.zavediaev
+package com.zavediaev.obrc.attempt6
 
+import com.zavediaev.obrc.attempt4.IntStatsForCity
 import kotlin.math.round
 
-private val fastHashMapInitialMapCapacity = 10000
+private const val fastHashMapInitialMapCapacity = 10000
 
 data class StorageWithFastHashMap(
     val statsByCity: FastHashMap<IntStatsForCity> = FastHashMap(fastHashMapInitialMapCapacity)
