@@ -2,25 +2,24 @@ package com.zavediaev
 
 import kotlin.math.round
 
-const val initialMapCapacity = 1000
-
-data class StorageWithStringStatsMap(
-    val statsByCity: HashMap<String, IntStatsForCity> = HashMap(initialMapCapacity)
+data class StorageWithByteArrayHolderStatsMap(
+    val statsByCity: HashMap<ByteArrayHolder, IntStatsForCity> = HashMap(initialMapCapacity)
 ) {
-    fun add(city: String, temperature: Int) {
-        val currentStats = statsByCity[city]
+    fun add(city: ByteArray, temperature: Int) {
+        val baHolder = ByteArrayHolder(city)
+        val currentStats = statsByCity[baHolder]
         if (currentStats != null) {
             currentStats.add(temperature)
         } else {
-            statsByCity[city] = IntStatsForCity(temperature, temperature, 1, temperature.toLong())
+            statsByCity[baHolder] = IntStatsForCity(temperature, temperature, 1, temperature.toLong())
         }
     }
 
     fun printResults() {
-        val cities = statsByCity.keys.sorted()
-
-        cities.forEach { city ->
-            val stats = statsByCity.getValue(city)
+        statsByCity.map { entry ->
+            val cityString = String(entry.key.byteArray)
+            cityString to entry.value
+        }.sortedBy { it.first }.forEach { (city, stats) ->
             val min = stats.min / 10f
             val avg = (round(stats.sum / stats.count.toDouble()) / 10).toFloat()
             val max = stats.max / 10f
@@ -28,10 +27,10 @@ data class StorageWithStringStatsMap(
         }
     }
 
-    operator fun plus(other: StorageWithStringStatsMap): StorageWithStringStatsMap {
+    operator fun plus(other: StorageWithByteArrayHolderStatsMap): StorageWithByteArrayHolderStatsMap {
         val cities = statsByCity.keys + other.statsByCity.keys
 
-        val result = HashMap<String, IntStatsForCity>(initialMapCapacity)
+        val result = HashMap<ByteArrayHolder, IntStatsForCity>(initialMapCapacity)
         cities.forEach { city ->
             val stats = statsByCity[city]
             val otherStats = other.statsByCity[city]
@@ -44,6 +43,6 @@ data class StorageWithStringStatsMap(
                 result[city] = stats + otherStats
             }
         }
-        return StorageWithStringStatsMap(result)
+        return StorageWithByteArrayHolderStatsMap(result)
     }
 }
