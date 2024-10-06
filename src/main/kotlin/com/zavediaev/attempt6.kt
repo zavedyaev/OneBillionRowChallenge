@@ -10,10 +10,10 @@ import java.util.concurrent.Executors
 import kotlin.math.min
 
 
-private class ThreadResult5(
+private class ThreadResult6(
     val skippedBeginning: ByteArray,
     val skippedEnd: ByteArray,
-    val storage: StorageWithByteArrayHolderStatsMap
+    val storage: StorageWithFastHashMap
 )
 
 /**
@@ -21,9 +21,9 @@ private class ThreadResult5(
  * to start:
  * time java -cp OneBillionRowChallengeKotlin-1.0-SNAPSHOT-all.jar com.zavediaev.MainKt
  *
- * took: 5.997
+ * took: 5.871
  */
-fun attempt5(path: String) {
+fun attempt6(path: String) {
     val file = File(path)
     val fileLength = file.length()
 
@@ -40,7 +40,7 @@ fun attempt5(path: String) {
         val callable = Callable {
             val toSkipBytes = adjustedBytesPerThread * thread
             var skippedFirstPartBa = ByteArray(0)
-            val threadStorage = StorageWithByteArrayHolderStatsMap()
+            val threadStorage = StorageWithFastHashMap()
 
             val lineBufferSize = 512
             val lineBuffer = ByteArray(lineBufferSize)
@@ -84,7 +84,7 @@ fun attempt5(path: String) {
                                         if (byte == minusByte) {
                                             tempMultiplier = -1
                                         } else {
-                                            temp = (temp * 10) + (lineBuffer[i].toInt() - 48)
+                                            temp = (temp * 10) + (lineBuffer[i] - 48)
                                         }
                                     }
                                 }
@@ -130,7 +130,7 @@ fun attempt5(path: String) {
                 ByteArray(0)
             }
 
-            ThreadResult5(
+            ThreadResult6(
                 skippedBeginning = skippedFirstPartBa,
                 skippedEnd = skippedLastPartBa,
                 storage = threadStorage
