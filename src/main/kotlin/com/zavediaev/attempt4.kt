@@ -13,7 +13,7 @@ import kotlin.math.min
 private class ThreadResult(
     val skippedBeginning: ByteArray,
     val skippedEnd: ByteArray,
-    val storage: StorageWithObj
+    val storage: StorageWithStringStatsMap
 )
 
 const val nextLineByte = '\n'.code.toByte()
@@ -45,7 +45,7 @@ fun attempt4(path: String) {
         val callable = Callable {
             val toSkipBytes = adjustedBytesPerThread * thread
             var skippedFirstPartBa = ByteArray(0)
-            val threadStorage = StorageWithObj()
+            val threadStorage = StorageWithStringStatsMap()
 
             val lineBufferSize = 512
             val lineBuffer = ByteArray(lineBufferSize)
@@ -150,7 +150,7 @@ fun attempt4(path: String) {
     val storageSum = threadResults.map { it.storage }.reduce { acc, storage -> acc + storage }
     val unprocessedStr = threadResults.map { it.skippedBeginning + nextLineByte + it.skippedEnd }
         .reduce { acc, bytes -> acc + bytes }.toString(Charsets.UTF_8)
-    val storageForUnprocessed = StorageWithObj()
+    val storageForUnprocessed = StorageWithStringStatsMap()
 
     val lines = unprocessedStr.split("\n")
     lines.filter { it.isNotBlank() }.forEach { line ->

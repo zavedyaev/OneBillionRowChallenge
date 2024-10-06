@@ -1,4 +1,5 @@
 plugins {
+    application
     kotlin("jvm") version "2.0.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -19,6 +20,19 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+tasks {
+    // Configure the shadowJar task
+    shadowJar {
+        // Set the Main-Class attribute in the manifest of the shadow jar
+        manifest {
+            attributes["Main-Class"] = "com.zavediaev.MainKt"
+        }
+    }
+}
 kotlin {
     jvmToolchain(21)
+}
+
+application {
+    mainClass.set("com.zavediaev.MainKt")
 }

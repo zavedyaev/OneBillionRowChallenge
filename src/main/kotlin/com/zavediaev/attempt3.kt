@@ -35,7 +35,7 @@ fun attempt3(path: String) {
         val deferred = (0 until processCoroutinesNumber).map { coroutineIndex ->
             val coroutine = async {
                 var lines = linesChannel.receiveCatching().getOrNull()
-                val storage = StorageWithInt()
+                val storage = StorageWithStringIntMaps()
                 while (lines != null) {
                     processLines(lines, storage)
                     lines = linesChannel.receiveCatching().getOrNull()
@@ -52,7 +52,7 @@ fun attempt3(path: String) {
     threadPool.shutdown()
 }
 
-private fun processLines(lines: List<String>, storage: StorageWithInt): StorageWithInt {
+private fun processLines(lines: List<String>, storage: StorageWithStringIntMaps): StorageWithStringIntMaps {
     lines.forEach { line ->
         val nameSb = StringBuilder()
 

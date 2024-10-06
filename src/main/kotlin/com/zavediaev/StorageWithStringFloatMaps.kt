@@ -4,7 +4,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.round
 
-data class StorageWithFloat(
+data class StorageWithStringFloatMaps(
     val maxByCity: HashMap<String, Float> = HashMap(),
     val minByCity: HashMap<String, Float> = HashMap(),
     val countByCity: HashMap<String, Int> = HashMap(),
@@ -33,7 +33,7 @@ data class StorageWithFloat(
         }
     }
 
-    operator fun plus(other: StorageWithFloat): StorageWithFloat {
+    operator fun plus(other: StorageWithStringFloatMaps): StorageWithStringFloatMaps {
         val cities = maxByCity.keys + other.maxByCity.keys
 
         val newMaxByCity: HashMap<String, Float> = HashMap()
@@ -47,7 +47,7 @@ data class StorageWithFloat(
             newCountByCity[city] = (countByCity[city] ?: 0) + (other.countByCity[city] ?: 0)
             newSumByCity[city] = (sumByCity[city] ?: 0.0) + (other.sumByCity[city] ?: 0.0)
         }
-        return StorageWithFloat(
+        return StorageWithStringFloatMaps(
             newMaxByCity,
             newMinByCity,
             newCountByCity,
